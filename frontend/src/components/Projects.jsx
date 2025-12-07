@@ -65,30 +65,61 @@ const Projects = () => {
               >
                 <div style={{ height: '200px', overflow: 'hidden' }}>
                   <img 
-                    src={project.image || 'https://via.placeholder.com/600x400'} 
+                    src={project.image ? (project.image.startsWith('http') ? project.image : `http://localhost:5000${project.image}`) : 'https://via.placeholder.com/600x400'} 
                     alt={project.title} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                   />
                 </div>
-                <div style={{ padding: '1.5rem' }}>
+                <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '280px' }}>
                   <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{project.title}</h3>
-                  <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', minHeight: '3rem' }}>{project.description}</p>
+                  <p style={{ 
+                    color: 'var(--text-secondary)', 
+                    marginBottom: '1rem', 
+                    flex: '0 0 auto',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    lineHeight: '1.5rem',
+                    height: '3rem'
+                  }}>
+                    {project.description}
+                  </p>
                   
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                    {project.tags.map(tag => (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem', minHeight: '2rem' }}>
+                    {project.tags && project.tags.map(tag => (
                       <span key={tag} style={{ fontSize: '0.8rem', padding: '0.25rem 0.75rem', background: 'var(--surface)', borderRadius: 'var(--radius-full)', color: 'var(--primary)' }}>
                         {tag}
                       </span>
                     ))}
                   </div>
 
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <a href={project.githubLink} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text)' }}>
-                      <FaGithub /> Code
-                    </a>
-                    <a href={project.liveLink} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
-                      <FaExternalLinkAlt /> Live Demo
-                    </a>
+                  <div style={{ display: 'flex', gap: '1rem', marginTop: 'auto', flexWrap: 'wrap' }}>
+                    {(project.githubFrontend || project.githubBackend || project.githubLink) && (
+                      <>
+                        {project.githubFrontend && (
+                          <a href={project.githubFrontend} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text)' }}>
+                            <FaGithub /> Frontend
+                          </a>
+                        )}
+                        {project.githubBackend && (
+                          <a href={project.githubBackend} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text)' }}>
+                            <FaGithub /> Backend
+                          </a>
+                        )}
+                        {!project.githubFrontend && !project.githubBackend && project.githubLink && (
+                          <a href={project.githubLink} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text)' }}>
+                            <FaGithub /> Code
+                          </a>
+                        )}
+                      </>
+                    )}
+                    {project.liveLink && (
+                      <a href={project.liveLink} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
+                        <FaExternalLinkAlt /> Live Demo
+                      </a>
+                    )}
                   </div>
                 </div>
               </motion.div>

@@ -1,7 +1,26 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-scroll';
+import { FaDownload } from 'react-icons/fa';
+import { getResume } from '../services/api';
 
 const Hero = () => {
+  const [resume, setResume] = useState(null);
+
+  useEffect(() => {
+    const fetchResume = async () => {
+      try {
+        const data = await getResume();
+        if (data.exists) {
+          setResume(data);
+        }
+      } catch (error) {
+        console.error('Error fetching resume:', error);
+      }
+    };
+    fetchResume();
+  }, []);
+
   return (
     <section id="hero" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
       {/* Background Elements */}
@@ -25,13 +44,24 @@ const Hero = () => {
             I build exceptional digital experiences that are fast, accessible, beautiful, and responsive.
           </p>
           
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="projects" smooth={true} duration={500} offset={-70}>
               <button className="btn btn-primary">View My Work</button>
             </Link>
             <Link to="contact" smooth={true} duration={500} offset={-70}>
               <button className="btn btn-outline">Contact Me</button>
             </Link>
+            {resume && (
+              <a 
+                href={`http://localhost:5000${resume.filePath}`}
+                download
+                style={{ textDecoration: 'none' }}
+              >
+                <button className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <FaDownload /> Download Resume
+                </button>
+              </a>
+            )}
           </div>
         </motion.div>
       </div>

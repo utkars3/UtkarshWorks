@@ -52,9 +52,36 @@ export const deleteProject = async (id) => {
   return data;
 };
 
-// Add similar functions for other resources (experience, education, etc.)
+// Upload image
+export const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  const { data } = await api.post('/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+};
+
+// Experience API functions
 export const getExperience = async () => {
   const { data } = await api.get('/experience');
+  return data;
+};
+
+export const createExperience = async (experienceData) => {
+  const { data } = await api.post('/experience', experienceData);
+  return data;
+};
+
+export const updateExperience = async (id, experienceData) => {
+  const { data } = await api.put(`/experience/${id}`, experienceData);
+  return data;
+};
+
+export const deleteExperience = async (id) => {
+  const { data } = await api.delete(`/experience/${id}`);
   return data;
 };
 
@@ -80,6 +107,38 @@ export const deleteEducation = async (id) => {
 
 export const getAchievements = async () => {
   const { data } = await api.get('/achievements');
+  return data;
+};
+
+export const createAchievement = async (achievementData) => {
+  const { data } = await api.post('/achievements', achievementData);
+  return data;
+};
+
+export const updateAchievement = async (id, achievementData) => {
+  const { data } = await api.put(`/achievements/${id}`, achievementData);
+  return data;
+};
+
+export const deleteAchievement = async (id) => {
+  const { data } = await api.delete(`/achievements/${id}`);
+  return data;
+};
+
+// Resume API functions
+export const uploadResume = async (file) => {
+  const formData = new FormData();
+  formData.append('resume', file);
+  const { data } = await api.post('/upload-resume', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+};
+
+export const getResume = async () => {
+  const { data } = await api.get('/resume');
   return data;
 };
 

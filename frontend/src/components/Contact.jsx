@@ -62,9 +62,9 @@ const Contact = () => {
             </div>
 
             <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-              <a href="#" style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}><FaGithub /></a>
-              <a href="#" style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}><FaLinkedin /></a>
-              <a href="#" style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}><FaTwitter /></a>
+              <a href="https://github.com/utkars3" style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}><FaGithub /></a>
+              <a href="https://www.linkedin.com/in/utkars3/" style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}><FaLinkedin /></a>
+              {/* <a href="#" style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}><FaTwitter /></a> */}
             </div>
           </motion.div>
 

@@ -26,7 +26,9 @@ const projectSchema = mongoose.Schema({
   image: { type: String },
   tags: [String],
   liveLink: { type: String },
-  githubLink: { type: String },
+  githubLink: { type: String }, // Keep for backward compatibility
+  githubFrontend: { type: String },
+  githubBackend: { type: String },
   featured: { type: Boolean, default: false },
 }, { timestamps: true });
 

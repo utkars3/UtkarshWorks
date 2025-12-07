@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const {
   User,
   Project,
@@ -11,6 +13,121 @@ const {
 const { protect } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  // Accept only image files
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed!'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
+
+// Image upload endpoint
+router.post('/upload', protect, upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    // Return the file path (relative to uploads folder)
+    res.json({ 
+      message: 'File uploaded successfully',
+      filePath: `/uploads/${req.file.filename}`
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error uploading file', error: error.message });
+  }
+});
+
+// Resume upload configuration
+const resumeStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, 'resume' + path.extname(file.originalname));
+  }
+});
+
+const resumeFileFilter = (req, file, cb) => {
+  // Accept only PDF and DOC files
+  const allowedTypes = ['.pdf', '.doc', '.docx'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowedTypes.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PDF and DOC files are allowed!'), false);
+  }
+};
+
+const resumeUpload = multer({
+  storage: resumeStorage,
+  fileFilter: resumeFileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  }
+});
+
+// Resume upload endpoint
+router.post('/upload-resume', protect, resumeUpload.single('resume'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    res.json({ 
+      message: 'Resume uploaded successfully',
+      filePath: `/uploads/${req.file.filename}`,
+      filename: req.file.filename
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error uploading resume', error: error.message });
+  }
+});
+
+// Get resume info
+router.get('/resume', async (req, res) => {
+  const fs = require('fs');
+  const resumePath = path.join(__dirname, '../uploads/');
+  
+  try {
+    const files = fs.readdirSync(resumePath);
+    const resumeFile = files.find(file => file.startsWith('resume'));
+    
+    if (resumeFile) {
+      const stats = fs.statSync(path.join(resumePath, resumeFile));
+      res.json({
+        exists: true,
+        filename: resumeFile,
+        filePath: `/uploads/${resumeFile}`,
+        size: stats.size,
+        uploadedAt: stats.mtime
+      });
+    } else {
+      res.json({ exists: false });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error getting resume info', error: error.message });
+  }
+});
 
 // Generate JWT
 const generateToken = (id) => {

@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { logout } from '../services/api';
-import { FaProjectDiagram, FaBriefcase, FaGraduationCap, FaTrophy, FaSignOutAlt } from 'react-icons/fa';
+import { FaProjectDiagram, FaBriefcase, FaGraduationCap, FaTrophy, FaFileAlt, FaSignOutAlt } from 'react-icons/fa';
 
 import ProjectManager from './ProjectManager';
-
-// Placeholder components for management sections
-const ExperienceManager = () => <div><h2>Manage Experience</h2><p>Experience management interface goes here.</p></div>;
+import ExperienceManager from './ExperienceManager';
 import EducationManager from './EducationManager';
+import AchievementManager from './AchievementManager';
+import ResumeManager from './ResumeManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -39,6 +39,12 @@ const AdminDashboard = () => {
           <Link to="/admin/education" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-sm)', transition: 'background 0.3s' }}>
             <FaGraduationCap /> Education
           </Link>
+          <Link to="/admin/achievements" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-sm)', transition: 'background 0.3s' }}>
+            <FaTrophy /> Achievements
+          </Link>
+          <Link to="/admin/resume" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-sm)', transition: 'background 0.3s' }}>
+            <FaFileAlt /> Resume
+          </Link>
           <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', marginTop: 'auto', background: 'transparent', border: 'none', color: 'var(--error)', cursor: 'pointer' }}>
             <FaSignOutAlt /> Logout
           </button>
@@ -52,6 +58,8 @@ const AdminDashboard = () => {
           <Route path="projects" element={<ProjectManager />} />
           <Route path="experience" element={<ExperienceManager />} />
           <Route path="education" element={<EducationManager />} />
+          <Route path="achievements" element={<AchievementManager />} />
+          <Route path="resume" element={<ResumeManager />} />
           <Route path="*" element={<div><h2>Welcome Admin</h2><p>Select a section to manage.</p></div>} />
         </Routes>
       </div>
