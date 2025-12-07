@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const connectDB = require('../config/db');
-const { User, Project, Experience, Education, Achievement, Review } = require('../models');
-const initialData = require('./initialData');
+const connectDB = require('./config/db');
+const { User, Project, Experience, Education, Achievement, Review } = require('./models');
+const initialData = require('./data/initialData');
 
-dotenv.config({ path: '../.env' }); // Load env vars from parent directory if running from data/
+dotenv.config(); // Load env vars from current directory
 // Or just load from root if running from root. Let's assume running from backend root.
 // Actually, let's make it robust.
 if (!process.env.MONGO_URI) {

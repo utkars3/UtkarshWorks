@@ -1,8 +1,8 @@
 const initialData = {
   users: [
     {
-      username: 'admin',
-      password: 'password123', // Will be hashed by pre-save hook
+      username: process.env.ADMIN_USERNAME || 'admin',
+      password: process.env.ADMIN_PASSWORD || 'password123', // Will be hashed by pre-save hook
     },
   ],
   projects: [
