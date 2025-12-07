@@ -14,8 +14,9 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['https://utkarsh-works.vercel.app', 'https://utkarsh-works-frontend.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
-  credentials: true
+  origin: true, // Allow all origins for now to debug
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -44,6 +45,10 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  });
+}
+
+module.exports = app;
