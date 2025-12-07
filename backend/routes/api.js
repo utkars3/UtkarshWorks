@@ -11,47 +11,34 @@ const {
   Review,
 } = require('../models');
 const { protect } = require('../middleware/auth');
+const { cloudinary } = require('../config/cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 // Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+// Configure multer for image uploads
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'portfolio-uploads',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
 });
 
-const fileFilter = (req, file, cb) => {
-  // Accept only image files
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files are allowed!'), false);
-  }
-};
+const upload = multer({ storage: storage });
 
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
-});
-
+// Image upload endpoint
 // Image upload endpoint
 router.post('/upload', protect, upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
-    // Return the file path (relative to uploads folder)
+    // Return the Cloudinary URL
     res.json({ 
       message: 'File uploaded successfully',
-      filePath: `/uploads/${req.file.filename}`
+      filePath: req.file.path
     });
   } catch (error) {
     res.status(500).json({ message: 'Error uploading file', error: error.message });
@@ -59,44 +46,35 @@ router.post('/upload', protect, upload.single('image'), (req, res) => {
 });
 
 // Resume upload configuration
-const resumeStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+// Resume upload configuration
+const resumeStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'portfolio-resumes',
+    resource_type: 'raw',
+    allowed_formats: ['pdf', 'doc', 'docx'],
+    public_id: (req, file) => 'resume-' + Date.now(),
   },
-  filename: function (req, file, cb) {
-    cb(null, 'resume' + path.extname(file.originalname));
-  }
 });
 
-const resumeFileFilter = (req, file, cb) => {
-  // Accept only PDF and DOC files
-  const allowedTypes = ['.pdf', '.doc', '.docx'];
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (allowedTypes.includes(ext)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only PDF and DOC files are allowed!'), false);
-  }
-};
-
-const resumeUpload = multer({
-  storage: resumeStorage,
-  fileFilter: resumeFileFilter,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
-  }
-});
+const resumeUpload = multer({ storage: resumeStorage });
 
 // Resume upload endpoint
-router.post('/upload-resume', protect, resumeUpload.single('resume'), (req, res) => {
+// Resume upload endpoint
+router.post('/upload-resume', protect, resumeUpload.single('resume'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
+
+    // Update user's resume field
+    req.user.resume = req.file.path;
+    await req.user.save();
+
     res.json({ 
       message: 'Resume uploaded successfully',
-      filePath: `/uploads/${req.file.filename}`,
-      filename: req.file.filename
+      filePath: req.file.path,
+      filename: req.file.originalname
     });
   } catch (error) {
     res.status(500).json({ message: 'Error uploading resume', error: error.message });
@@ -104,22 +82,15 @@ router.post('/upload-resume', protect, resumeUpload.single('resume'), (req, res)
 });
 
 // Get resume info
+// Get resume info
 router.get('/resume', async (req, res) => {
-  const fs = require('fs');
-  const resumePath = path.join(__dirname, '../uploads/');
-  
   try {
-    const files = fs.readdirSync(resumePath);
-    const resumeFile = files.find(file => file.startsWith('resume'));
+    const user = await User.findOne({ resume: { $exists: true, $ne: null } });
     
-    if (resumeFile) {
-      const stats = fs.statSync(path.join(resumePath, resumeFile));
+    if (user && user.resume) {
       res.json({
         exists: true,
-        filename: resumeFile,
-        filePath: `/uploads/${resumeFile}`,
-        size: stats.size,
-        uploadedAt: stats.mtime
+        filePath: user.resume,
       });
     } else {
       res.json({ exists: false });

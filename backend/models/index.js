@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const userSchema = mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  resume: { type: String },
 }, { timestamps: true });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
