@@ -10,4 +10,9 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+if (!process.env.CLOUDINARY_CLOUD_NAME) {
+  console.error('WARNING: CLOUDINARY_CLOUD_NAME is not set');
+}
+
+
 module.exports = { cloudinary };
